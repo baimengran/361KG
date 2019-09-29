@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- Mirrored from www.zi-han.net/theme/hplus/login_v2.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 20 Jan 2016 14:19:49 GMT -->
+<head>
+{include file='layout/header'}
+    <link type="text/css" rel="stylesheet" href="__CSS__/jquery.slider.css">
+    <link href="__CSS__/login.min.css" rel="stylesheet">
+</head>
+
+<body class="signin">
+    <div class="signinpanel">
+        <div class="row">
+            <div class="col-sm-7">
+            </div>
+            <div class="col-sm-5">
+                <form id="doLogin" method="post" name="doLogin" action="{:url('doLogin')}">
+                    <h4 class="no-margins">登录：</h4>
+                    <p class="m-t-md">登录到</p>
+                    <input type="text" id="username" class="form-control uname" name="username" placeholder="用户名" />
+                    <input type="password" id="password" class="form-control pword m-b" name="password" placeholder="密码" />
+                    {if condition="$verify_type eq 1"}
+                    <div style="margin-bottom:70px">
+                        <input type="text" class="form-control" placeholder="验证码" style="color:black;width:120px;float:left;margin:0px 0px;" name="code" id="code"/>
+                        <img src="{:url('checkVerify')}" onclick="javascript:this.src='{:url('checkVerify')}?tm='+Math.random();" style="float:right;cursor: pointer"/>
+                    </div>
+                    {else/}
+                    <div id="slider" class="slider"></div>
+                    {/if}
+                    <button class="btn btn-success btn-block">登录</button>
+                </form>
+            </div>
+        </div>
+        <div class="signup-footer">
+
+        </div>
+    </div>
+</body>
+{include file='layout/footer'}
+<script type="text/javascript" src="__JS__/jquery.slider.min.js"></script>
+<script>
+    if(window !=top){
+             top.location.href = location.href;
+         }
+    var check_result = false;
+    $("#slider").slider({
+        width: 233, // width
+        height: 35, // height
+        sliderBg: "rgb(232, 232, 232)", // 滑块背景颜色
+        color: "rgb(114, 114, 114)", // 文字颜色
+        fontSize: 14, // 文字大小
+        bgColor: "#1ab394", // 背景颜色
+        textMsg: "按住滑块，拖拽验证", // 提示文字
+        successMsg: "验证成功", // 验证成功提示文字
+        successColor: "#ffffff", // 滑块验证成功提示文字颜色
+        time: 400, // 返回时间
+        callback: function(result) { // 回调函数，true(成功),false(失败)
+            check_result = result;
+        }
+    });
+
+    $(function(){
+        $('#doLogin').ajaxForm({
+            beforeSubmit: checkForm, // 此方法主要是提交前执行的方法，根据需要设置
+            success: complete, // 这是提交后的方法
+            dataType: 'json'
+        });
+
+        function checkForm(){
+            if( '' === $.trim($('#username').val())){
+                lunhui.error('请输入登录用户名');
+                return false;
+            }
+
+            if( '' === $.trim($('#password').val())){
+                lunhui.error('请输入登录密码');
+                return false;
+            }
+
+            if( false === check_result){
+                lunhui.error('请拖动滑块到最右边');
+                return false;
+            }
+
+            $('button').addClass('disabled').text('登录中...');
+        }
+
+
+        function complete(data){
+            if(data.code==1){
+                console.log(1);
+                lunhui.success(data.msg,data.url);
+            }else{
+                lunhui.error(data.msg);
+                $('button').removeClass('disabled').text('登　录');
+                return false;
+            }
+        }
+    });
+</script>
+
+</html>

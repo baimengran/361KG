@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+    {include file="layout/header"}
+    <link href="__JS__/plugins/fancybox/jquery.fancybox.css" rel="stylesheet">
+    <link href="__CSS__/plugins/switchery/switchery.css" rel="stylesheet">
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>{$person?'个人认证审核':'企业认证审核'}</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="form_basic.html#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <form class="form-horizontal" name="userEdit" id="userEdit" method="post"
+                          action="{$person?'/admin/user/person_status_update':'/admin/user/company_status_update'}">
+                        <input type="hidden" name="id" value="{$person?$person.id:$company?$company.id:''}">
+                        {if isset($person)}
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">姓名：</label>
+                            <div class="input-group col-sm-4">
+                                <p>{$person.person_auth_name}</p>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">身份证号码：</label>
+                            <div class="input-group col-sm-4">
+                                <p>{$person.person_auth_id_num}</p>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">身份证正面：</label>
+                            <div class="input-group col-sm-4">
+                                <a class="fancybox" href="{$person.person_auth_pic_front}" title="正面">
+                                    <img alt="image" src="{$person.person_auth_pic_front}" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">身份证背面：</label>
+                            <div class="input-group col-sm-4">
+                                <a class="fancybox" href="{$person.person_auth_pic_rear}" title="北面">
+                                    <img alt="image" src="{$person.person_auth_pic_rear}" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">审核：</label>
+                            <div class="input-group col-sm-4">
+                                不通过
+                                <input type="checkbox" name="person_status" class="js-switch" checked/>
+                                通过
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div id="person_reason">
+
+                        </div>
+                        {/if}
+
+                        {if isset($company)}
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">认证企业名称：</label>
+                            <div class="input-group col-sm-4">
+                                <p>{$company.company_auth_name}</p>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">工商营业执照：</label>
+                            <div class="input-group col-sm-4">
+                                <a class="fancybox" href="{$company.company_auth_pic}" title="北面">
+                                    <img alt="image" src="{$company.company_auth_pic}" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">审核：</label>
+                            <div class="input-group col-sm-4">
+                                不通过
+                                <input type="checkbox" name="company_status" class="js-switch" checked/>
+                                通过
+                            </div>
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                        <div id="person_reason">
+
+                        </div>
+                        {/if}
+                        <div class="form-group">
+                            <div class="col-sm-4 col-sm-offset-3">
+                                <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> 保存</button>&nbsp;&nbsp;&nbsp;
+                                <a class="btn btn-danger" href="javascript:history.go(-1);"><i class="fa fa-close"></i>
+                                    返回</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+{include file='layout/footer'}
+<script src="__JS__/plugins/fancybox/jquery.fancybox.js"></script>
+<script src="__JS__/plugins/switchery/switchery.js"></script>
+<script type="text/javascript">
+    var elem = document.querySelector('.js-switch');
+    var init = new Switchery(elem);
+
+    elem.onchange = function(){
+        if(elem.checked){
+            $('#person_reason').empty();
+        }else{
+            html='<div class="form-group">\n' +
+                '                            <label class="col-sm-3 control-label">不通过原因：</label>\n' +
+                '                            <div class="input-group col-sm-4">\n' +
+                '                                <textarea class="form-control" rows="4" placeholder="简短输入审核不通过原因" name="{$person?\'person_reason\':\'company_reason\'}" required=""\n' +
+                '                                          aria-required="true"></textarea>\n' +
+                '                            </div>\n' +
+                '                        </div>\n' +
+                '                        <div class="hr-line-dashed"></div>';
+            $('#person_reason').append(html);
+        }
+    }
+
+    $(document).ready(function(){$(".fancybox").fancybox({
+        type:'iframe',
+        openEffect:"none",
+        closeEffect:"none",
+        width:'80%',
+        height:'60%'
+    })});
+    //提交
+    $(function () {
+        $('#userEdit').ajaxForm({
+            beforeSubmit: checkForm,
+            success: complete,
+            dataType: 'json'
+        });
+
+        function checkForm() {
+
+        }
+
+
+        function complete(data) {
+            if (data.code === 1) {
+                layer.msg(data.msg, {icon: 6, time: 1500, shade: 0.1}, function (index) {
+                    window.location.href = "{:url('user/index')}";
+                });
+            } else {
+                layer.msg(data.msg, {icon: 5, time: 1500, shade: 0.1});
+                return false;
+            }
+        }
+
+    });
+</script>
+</html>
