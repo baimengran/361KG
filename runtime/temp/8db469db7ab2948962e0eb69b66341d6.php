@@ -1,4 +1,4 @@
-<?php /*a:3:{s:73:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\issue\index.html";i:1569577057;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1569059483;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:73:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\issue\index.html";i:1570670836;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -11,7 +11,7 @@
 <title>后台管理系统</title>
 <meta name="keywords" content="">
 <meta name="description" content="">
-<link rel="shortcut icon" href="<?php echo url('/public/favicon.ico','',''); ?>">
+<link rel="shortcut icon" href="<?php echo url('/favicon.ico','',''); ?>">
 <link href="/static/admin/css/bootstrap.min.css" rel="stylesheet">
 <link href="/static/admin/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
 <link href="/static/admin/css/animate.min.css" rel="stylesheet">
@@ -76,9 +76,8 @@
                     <table class="table table-bordered table-hover text-center">
                         <thead>
                         <tr class="text-center">
-                            <th>标题</th>
                             <th>分类</th>
-                            <th>推荐</th>
+                            <th>首页推荐</th>
                             <th>审核</th>
                             <th>操作</th>
                         </tr>
@@ -88,7 +87,6 @@
                         <tbody id="list-content">
                         <?php if(is_array($data) || $data instanceof \think\Collection || $data instanceof \think\Paginator): $i = 0; $__LIST__ = $data;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$v): $mod = ($i % 2 );++$i;?>
                         <tr class="long-td">
-                            <td><?php echo htmlentities($v['title']); ?></td>
                             <td><?php echo htmlentities($v['p_name']); ?>--<?php echo htmlentities($v['name']); ?></td>
                             <td>
                                 <?php if($v['recommend']==1): ?>

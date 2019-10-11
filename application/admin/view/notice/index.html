@@ -26,18 +26,18 @@
                             </a>
                         </div>
                     </div>
-                    <form name="admin_list_sea" class="form-search" method="post" action="{:url('index')}">
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <input type="text" id="key" class="form-control" name="key" value="{$val}"
-                                       placeholder="输入需查询的公告"/>
-                                <span class="input-group-btn">
-                                    <button type="submit" class="btn btn-primary"><i
-                                            class="fa fa-search"></i> 搜索</button>
-                                </span>
-                            </div>
-                        </div>
-                    </form>
+                    <!--<form name="admin_list_sea" class="form-search" method="post" action="{:url('index')}">-->
+                        <!--<div class="col-sm-3">-->
+                            <!--<div class="input-group">-->
+                                <!--<input type="text" id="key" class="form-control" name="key" value="{$val}"-->
+                                       <!--placeholder="输入需查询的公告"/>-->
+                                <!--<span class="input-group-btn">-->
+                                    <!--<button type="submit" class="btn btn-primary"><i-->
+                                            <!--class="fa fa-search"></i> 搜索</button>-->
+                                <!--</span>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</form>-->
                 </div>
             </div>
             <!--搜索框结束-->
@@ -49,6 +49,7 @@
                         <tr class="text-center">
                             <th>公告内容</th>
                             <th>创建日期</th>
+                            <th>排序</th>
                             <th>状态</th>
                             <th>操作</th>
                         </tr>
@@ -56,10 +57,18 @@
                         <script id="list-template" type="text/html">
                         </script>
                         <tbody id="list-content">
+                        <form class="form-horizontal" name="add_rule" id="add_rule" method="post"
+                              action="{:url('notice/sort')}">
                         {volist name="data" id="v"}
                         <tr class="long-td">
-                            <td>{$v.content}</td>
+                            <td><img alt="image" width="50px" class="message-avatar" src="{$v.pic}"></td>
                             <td>{$v.create_time|date='Y-m-d H:i:s'}</td>
+                            <td style="padding: 3px">
+                                <div>
+                                    <input name="{$v.id}" value=" {$v.sort}" width="50%" style="text-align:center;"
+                                           class="form-control">
+                                </div>
+                            </td>
                             <td>
                                 {if condition="$v.status==1"}
                                 <a href="javascript:;" onclick="status({$v.id})">
@@ -81,6 +90,12 @@
                             </td>
                         </tr>
                         {/volist}
+                            <tr>
+                                <td colspan="5" align="right">
+                                    <button type="submit" id="btnorder" class="btn btn-info">更新排序</button>
+                                </td>
+                            </tr>
+                        </form>
                         </tbody>
                     </table>
                     <div id="AjaxPage" style="text-align:right;">{$data|raw}</div>
@@ -138,12 +153,12 @@
         function complete(data) {
             if (data.code === 1) {
                 layer.msg(data.msg, {icon: 1, time: 1500, shade: 0.1}, function (index) {
-                    window.location.href = "{:url('con_attr/index')}";
+                    window.location.href = "{:url('notice/index')}";
                 });
             } else {
                 layer.msg(data.msg, {icon: 2, time: 1500, shade: 0.1}, function (index) {
                     layer.close(index);
-                    window.location.href ="{:url('con_attr/index')}";
+                    window.location.href ="{:url('notice/index')}";
                 });
             }
         }

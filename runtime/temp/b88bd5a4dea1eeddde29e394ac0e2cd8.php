@@ -1,4 +1,4 @@
-<?php /*a:3:{s:71:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\error\500.html";i:1568200118;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1569059483;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:71:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\error\500.html";i:1568200118;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
 <!DOCTYPE html>
 <html>
 
@@ -13,7 +13,7 @@
 <title>后台管理系统</title>
 <meta name="keywords" content="">
 <meta name="description" content="">
-<link rel="shortcut icon" href="<?php echo url('/public/favicon.ico','',''); ?>">
+<link rel="shortcut icon" href="<?php echo url('/favicon.ico','',''); ?>">
 <link href="/static/admin/css/bootstrap.min.css" rel="stylesheet">
 <link href="/static/admin/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
 <link href="/static/admin/css/animate.min.css" rel="stylesheet">

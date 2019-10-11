@@ -1,4 +1,4 @@
-<?php /*a:3:{s:77:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\notice\add_edit.html";i:1569392731;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1569059483;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:77:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\notice\add_edit.html";i:1570608049;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -11,7 +11,7 @@
 <title>后台管理系统</title>
 <meta name="keywords" content="">
 <meta name="description" content="">
-<link rel="shortcut icon" href="<?php echo url('/public/favicon.ico','',''); ?>">
+<link rel="shortcut icon" href="<?php echo url('/favicon.ico','',''); ?>">
 <link href="/static/admin/css/bootstrap.min.css" rel="stylesheet">
 <link href="/static/admin/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
 <link href="/static/admin/css/animate.min.css" rel="stylesheet">
@@ -64,12 +64,29 @@
                           action="<?php echo !empty($data) ? '/admin/notice/update' : 'save'; ?>">
                         <input type="hidden" name="id" value="<?php echo !empty($data) ? htmlentities($data['id']) : ''; ?>">
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">公告内容：</label>
+                            <label class="col-sm-3 control-label">栏目图标：</label>
                             <div class="input-group col-sm-4">
-                                <textarea class="form-control" rows="5" name="content" required="" aria-required="true"><?php echo !empty($data) ? htmlentities($data['content']) : ''; ?></textarea>
+                                <input type="hidden" id="data_photo" name="pic" value="<?php echo !empty($data) ? htmlentities($data['pic']) : ''; ?>"/>
+                                <div id="fileList" class="uploader-list"></div>
+                                <div id="imgPicker" style="float:left">选择图片</div>
+                                <img id="img_data" height="100px" width="100px"
+                                     style="float:left;margin-left: 50px;margin-top: -10px;"
+                                     src="<?php echo !empty($data) ? htmlentities($data['pic']) : ''; ?>" onerror="this.src='/static/admin/img/no_img.jpg'"/>
                             </div>
+                            <div class="input-group col-sm-offset-2" style="margin-top: 10px;">
+                            <span class="help-block m-b-none">
+                                <i class="fa fa-info-circle"></i> 公告将在首页列表显示，当您设置多个时考虑排版原因有些可能不会显示</span>
                         </div>
+                        </div>
+
                         <div class="hr-line-dashed"></div>
+                        <!--<div class="form-group">-->
+                            <!--<label class="col-sm-3 control-label">公告内容：</label>-->
+                            <!--<div class="input-group col-sm-4">-->
+                                <!--<textarea class="form-control" rows="5" name="content" required="" aria-required="true"><?php echo !empty($data) ? htmlentities($data['content']) : ''; ?></textarea>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                        <!--<div class="hr-line-dashed"></div>-->
                         <div class="form-group">
                             <div class="col-sm-4 col-sm-offset-3">
                                 <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> 保存</button>&nbsp;&nbsp;&nbsp;
@@ -116,7 +133,44 @@
 <script type="text/javascript" src="/static/admin/js/plugins/webuploader/webuploader.min.js"></script>
 
 <script type="text/javascript">
+    var $list = $('#fileList');
+    //上传图片,初始化WebUploader
+    var uploader = WebUploader.create({
 
+        auto: true,// 选完文件后，是否自动上传。
+        swf: '/static/admin/js/plugins/webupload/Uploader.swf',// swf文件路径
+        server: "<?php echo url('upload/upload'); ?>",// 文件接收服务端。
+        duplicate: true,// 重复上传图片，true为可重复false为不可重复
+        pick: '#imgPicker',// 选择文件的按钮。可选。
+
+        accept: {
+            title: 'Images',
+            extensions: 'gif,jpg,jpeg,bmp,png',
+            mimeTypes: 'image/jpg,image/jpeg,image/png'
+        },
+
+        'onUploadSuccess': function (file, data, response) {
+            $("#data_photo").val(data);
+            $("#img_data").attr('src', data).show();
+        }
+    });
+
+    uploader.on('fileQueued', function (file) {
+        $list.html('<div id="' + file.id + '" class="item">' +
+            '<h4 class="info">' + file.name + '</h4>' +
+            '<p class="state">正在上传...</p>' +
+            '</div>');
+    });
+
+    // 文件上传成功
+    uploader.on('uploadSuccess', function (file) {
+        $('#' + file.id).find('p.state').text('上传成功！');
+    });
+
+    // 文件上传失败，显示上传出错。
+    uploader.on('uploadError', function (file) {
+        $('#' + file.id).find('p.state').text('上传出错!');
+    });
     //提交
     $(function () {
         $('#userEdit').ajaxForm({

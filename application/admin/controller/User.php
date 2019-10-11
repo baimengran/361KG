@@ -38,7 +38,7 @@ class User extends Controller
         }
         try {
             $user = Db::name('user')->where('id', $id)
-                ->field('id,person_auth_name,person_auth_pic_front,person_auth_pic_rear,person_auth_id_num,person_status,person_reason')
+                ->field('id,person_auth_name,person_auth_pic_front,person_auth_pic_rear,person_auth_id_card,person_status,person_reason')
                 ->find();
             if (!$user) {
                 return '<div><p>未找到用户</p></div>';

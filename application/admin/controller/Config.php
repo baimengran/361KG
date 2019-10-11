@@ -55,7 +55,7 @@ class Config extends Base
         if (!$validate->check($form)) {
             return json(['code' => 0, 'msg' => $validate->getError()]);
         }
-
+        unset($form['file']);
         $data = json_encode($form);
         $status = file_put_contents(self::WEB_SITE_PATH, $data);
         if ($status) {

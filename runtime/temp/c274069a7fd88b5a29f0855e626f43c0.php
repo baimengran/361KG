@@ -1,4 +1,4 @@
-<?php /*a:3:{s:74:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\notice\index.html";i:1569392550;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1569059483;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:74:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\notice\index.html";i:1570609999;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -11,7 +11,7 @@
 <title>后台管理系统</title>
 <meta name="keywords" content="">
 <meta name="description" content="">
-<link rel="shortcut icon" href="<?php echo url('/public/favicon.ico','',''); ?>">
+<link rel="shortcut icon" href="<?php echo url('/favicon.ico','',''); ?>">
 <link href="/static/admin/css/bootstrap.min.css" rel="stylesheet">
 <link href="/static/admin/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
 <link href="/static/admin/css/animate.min.css" rel="stylesheet">
@@ -61,18 +61,18 @@
                             </a>
                         </div>
                     </div>
-                    <form name="admin_list_sea" class="form-search" method="post" action="<?php echo url('index'); ?>">
-                        <div class="col-sm-3">
-                            <div class="input-group">
-                                <input type="text" id="key" class="form-control" name="key" value="<?php echo htmlentities($val); ?>"
-                                       placeholder="输入需查询的公告"/>
-                                <span class="input-group-btn">
-                                    <button type="submit" class="btn btn-primary"><i
-                                            class="fa fa-search"></i> 搜索</button>
-                                </span>
-                            </div>
-                        </div>
-                    </form>
+                    <!--<form name="admin_list_sea" class="form-search" method="post" action="<?php echo url('index'); ?>">-->
+                        <!--<div class="col-sm-3">-->
+                            <!--<div class="input-group">-->
+                                <!--<input type="text" id="key" class="form-control" name="key" value="<?php echo htmlentities($val); ?>"-->
+                                       <!--placeholder="输入需查询的公告"/>-->
+                                <!--<span class="input-group-btn">-->
+                                    <!--<button type="submit" class="btn btn-primary"><i-->
+                                            <!--class="fa fa-search"></i> 搜索</button>-->
+                                <!--</span>-->
+                            <!--</div>-->
+                        <!--</div>-->
+                    <!--</form>-->
                 </div>
             </div>
             <!--搜索框结束-->
@@ -84,6 +84,7 @@
                         <tr class="text-center">
                             <th>公告内容</th>
                             <th>创建日期</th>
+                            <th>排序</th>
                             <th>状态</th>
                             <th>操作</th>
                         </tr>
@@ -91,10 +92,18 @@
                         <script id="list-template" type="text/html">
                         </script>
                         <tbody id="list-content">
+                        <form class="form-horizontal" name="add_rule" id="add_rule" method="post"
+                              action="<?php echo url('notice/sort'); ?>">
                         <?php if(is_array($data) || $data instanceof \think\Collection || $data instanceof \think\Paginator): $i = 0; $__LIST__ = $data;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$v): $mod = ($i % 2 );++$i;?>
                         <tr class="long-td">
-                            <td><?php echo htmlentities($v['content']); ?></td>
+                            <td><img alt="image" width="50px" class="message-avatar" src="<?php echo htmlentities($v['pic']); ?>"></td>
                             <td><?php echo htmlentities(date('Y-m-d H:i:s',!is_numeric($v['create_time'])? strtotime($v['create_time']) : $v['create_time'])); ?></td>
+                            <td style="padding: 3px">
+                                <div>
+                                    <input name="<?php echo htmlentities($v['id']); ?>" value=" <?php echo htmlentities($v['sort']); ?>" width="50%" style="text-align:center;"
+                                           class="form-control">
+                                </div>
+                            </td>
                             <td>
                                 <?php if($v['status']==1): ?>
                                 <a href="javascript:;" onclick="status(<?php echo htmlentities($v['id']); ?>)">
@@ -116,6 +125,12 @@
                             </td>
                         </tr>
                         <?php endforeach; endif; else: echo "" ;endif; ?>
+                            <tr>
+                                <td colspan="5" align="right">
+                                    <button type="submit" id="btnorder" class="btn btn-info">更新排序</button>
+                                </td>
+                            </tr>
+                        </form>
                         </tbody>
                     </table>
                     <div id="AjaxPage" style="text-align:right;"><?php echo $data; ?></div>
@@ -200,12 +215,12 @@
         function complete(data) {
             if (data.code === 1) {
                 layer.msg(data.msg, {icon: 1, time: 1500, shade: 0.1}, function (index) {
-                    window.location.href = "<?php echo url('con_attr/index'); ?>";
+                    window.location.href = "<?php echo url('notice/index'); ?>";
                 });
             } else {
                 layer.msg(data.msg, {icon: 2, time: 1500, shade: 0.1}, function (index) {
                     layer.close(index);
-                    window.location.href ="<?php echo url('con_attr/index'); ?>";
+                    window.location.href ="<?php echo url('notice/index'); ?>";
                 });
             }
         }

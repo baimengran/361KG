@@ -16,84 +16,38 @@ class Feedback extends Controller
     public function index()
     {
         $val = $this->request->post('key');
-        try{
-            $feedback = Db::name('feedback')->alias('f')->join('user u','u.id=f.user_id');
-            if($val){
-                $feedback = $feedback->where('content','like','%'.$val.'%');
+        try {
+            $feedback = Db::name('feedback')->alias('f')->join('user u', 'u.id=f.user_id');
+            if ($val) {
+                $feedback = $feedback->where('content', 'like', '%' . $val . '%');
             }
             $feedback = $feedback->field('f.id,f.user_id,f.content,f.pic,f.create_time,u.id as u_id,u.nickname')
                 ->order('create_time desc')->paginate(20);
-            $this->assign('val',$val);
-            $this->assign('data',$feedback);
+            $feedback = $feedback->each(function ($v, $k) {
+                $v['pic'] = explode(',', $v['pic']);
+                return $v;
+            });
+            $this->assign('val', $val);
+            $this->assign('data', $feedback);
             return $this->fetch('feedback/index');
-        }catch (\Exception $e){
+        } catch (\Exception $e) {
             return $this->fetch('error/500');
         }
     }
 
-    /**
-     * 显示创建资源表单页.
-     *
-     * @return \think\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * 保存新建的资源
-     *
-     * @param  \think\Request  $request
-     * @return \think\Response
-     */
-    public function save(Request $request)
-    {
-        //
-    }
-
-    /**
-     * 显示指定的资源
-     *
-     * @param  int  $id
-     * @return \think\Response
-     */
-    public function read($id)
-    {
-        //
-    }
-
-    /**
-     * 显示编辑资源表单页.
-     *
-     * @param  int  $id
-     * @return \think\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * 保存更新的资源
-     *
-     * @param  \think\Request  $request
-     * @param  int  $id
-     * @return \think\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * 删除指定资源
-     *
-     * @param  int  $id
-     * @return \think\Response
-     */
-    public function delete($id)
-    {
-        //
+    public function show(){
+        $id = \think\facade\Request::param('id');
+        try{
+            $feedback = Db::name('feedback')->alias('f')->join('user u','u.id=f.user_id')
+                ->field('f.id,f.content,f.pic,f.create_time,u.nickname,u.avatar')
+                ->where('f.id',$id)->find();
+            if($feedback['pic']!=null) {
+                $feedback['pic'] = explode(',', $feedback['pic']);
+            }
+            $this->assign('data',$feedback);
+            return $this->fetch('feedback/show');
+        }catch (\Exception $e){
+            return $this->fetch('error/500');
+        }
     }
 }

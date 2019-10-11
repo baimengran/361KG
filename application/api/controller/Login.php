@@ -61,8 +61,7 @@ class Login
             'js_code' => $user_info['code'],
             'grant_type' => 'authorization_code',
         ];
-        Log::error($this->app_id);
-        Log::error($this->app_secret);
+
         //初始化
         $cu = curl_init();
         //设置选项
@@ -75,7 +74,6 @@ class Login
 
         //执行并获取内容
         $output = curl_exec($cu);
-        Log::error('out_'.$output);
         //释放句柄
         curl_close($cu);
         if (empty($output)) {
@@ -121,6 +119,8 @@ class Login
                 return json(['code' => 0, 'msg' => '登录失败']);
             }
         } catch (Exception $e) {
+            $data=['code'=>$e->getCode(),'line'=>$e->getLine(),'file'=>$e->getFile(),'message'=>$e->getMessage()];
+            Log::error(json_encode($data,256));
             return json(['code' => 0, 'msg' => '内部错误'], 500);
         }
     }

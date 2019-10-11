@@ -11,9 +11,10 @@ namespace app\common;
 
 class WechatOline
 {
-    public function getAccessToken(){
+    public function getAccessToken()
+    {
         $url = 'https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=' . config('wechat.app_id') . '&secret=' . \config('wechat.app_secret');
-       return $access_token = json_decode($this->http_url($url),true);
+        return $access_token = json_decode($this->http_url($url), true);
     }
 
     /**
@@ -22,9 +23,10 @@ class WechatOline
      * @param $openid
      * @return mixed
      */
-    public function userInfo($access_token,$openid){
+    public function userInfo($access_token, $openid)
+    {
         $url = 'https://api.weixin.qq.com/cgi-bin/user/info?access_token=' . $access_token . '&openid=' . $openid . '&lang=zh_CN';
-       return $user_info = json_decode($this->http_url($url), true);
+        return $user_info = json_decode($this->http_url($url), true);
     }
 
     /**
@@ -33,10 +35,17 @@ class WechatOline
      * @param $content
      * @return mixed
      */
-    public function msgSecCheck($accessToken,$content){
-        $url = 'https://api.weixin.qq.com/wxa/msg_sec_check?access_token='.$accessToken;
-        $content = json_encode(['content'=>$content],JSON_UNESCAPED_UNICODE);
-        return $output = json_decode($this->http_url($url,$content),true);
+    public function msgSecCheck($accessToken, $content)
+    {
+        $url = 'https://api.weixin.qq.com/wxa/msg_sec_check?access_token=' . $accessToken;
+        $content = json_encode(['content' => $content], JSON_UNESCAPED_UNICODE);
+        return $output = json_decode($this->http_url($url, $content), true);
+    }
+
+    public function imgSecCheck($accessToken, $media)
+    {
+        $url = 'https://api.weixin.qq.com/wxa/img_sec_check?access_token=' . $accessToken;
+        return $output = json_decode($this->http_url($url, $media), true);
     }
 
     function http_url($url, $data = null)

@@ -19,17 +19,18 @@ class Issue extends Base
     {
         try {
             $key = $this->request->post('key');
-            $cate = Db::name('issue')->alias('i')->join('category c', 'c.id=i.cate_id')
+
+            $cate = Db::name('issue')->alias('is')->join('category c', 'c.id=is.cate_id')
                 ->join('category ca', 'ca.id=c.pid')
-                ->field('i.id,i.title,i.status,i.delete_time,i.create_time,i.cate_id,i.praise_num,i.browse_num
-                ,i.review_num,i.collect_num,c.title as name,ca.title as p_name,c.id as category_id,i.top,i.check_status,
-                i.recommend')
-                ->where('i.delete_time', 0);
+                ->field('is.id,is.title,is.status,is.delete_time,is.create_time,is.cate_id,is.praise_num,is.browse_num
+                ,is.review_num,is.collect_num,c.id as cate_id,c.title as name,ca.title as p_name,c.id as category_id,is.top,is.check_status,
+                is.recommend')
+                ->where('is.delete_time', 0);
             if ($key) {
-                $cate = $cate->where('i.title', 'like', '%' . $key . '%');
+                $cate = $cate->where('is.title', 'like', '%' . $key . '%');
             }
 
-            $cate = $cate->order('i.status asc,i.top desc,i.create_time desc')->paginate(20);
+            $cate = $cate->order('is.status asc,is.top desc,is.create_time desc')->paginate(20);
 
             $this->assign('val', $key);
             $this->assign('data', $cate);
@@ -44,11 +45,33 @@ class Issue extends Base
         $id = $request->param('id');
         try {
             $issue = Db::name('issue')->alias('i')->join('category c', 'c.id=i.cate_id')
-                ->join('category ca', 'ca.id=c.pid')->where('i.delete_time', 0)->where('i.id', $id)
-                ->field('i.id,i.cate_id,i.title,i.content,i.city,i.permission,i.valid_time,i.delete_time,c.id as category_id,c.title as cate_title,ca.title as p_cate_title')
+                ->join('category ca', 'ca.id=c.pid')->join('user u', 'i.user_id=u.id')
+                ->where('i.delete_time', 0)->where('i.id', $id)
+                ->field('i.id,i.content,i.province,i.city,i.district,i.permission,i.valid_time,
+                c.title as cate_title,ca.title as p_cate_title,i.praise_num,i.browse_num,i.review_num,i.collect_num,
+                i.check_status,i.status,i.pic,i.recommend,from_unixtime(i.create_time,\'%Y-%m-%d %H:%i:%s\') as create_time,
+                u.nickname,u.avatar')
                 ->find();
-            //TODO::未完成
-            dump($issue);
+            if ($issue) {
+                if ($issue['pic'] != '') {
+                    $issue['pic'] = explode(',', $issue['pic']);
+                }
+                if($issue['permission']==-1){
+                    $issue['permission']='不允许查看';
+                }else if($issue['permission']==0){
+                    $issue['permission']='任何人';
+                }else if($issue['permission']==1){
+                    $issue['permission']='个人认证';
+                }else {
+                    $issue['permission']='企业认证';
+                }
+
+            } else {
+                return json(['code' => 0, 'msg' => '当前内容不存在']);
+            }
+            $this->assign('data', $issue);
+            return $this->fetch('issue/show');
+
         } catch (\Exception $e) {
             return $this->fetch('error/500');
         }

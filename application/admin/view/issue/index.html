@@ -41,9 +41,8 @@
                     <table class="table table-bordered table-hover text-center">
                         <thead>
                         <tr class="text-center">
-                            <th>标题</th>
                             <th>分类</th>
-                            <th>推荐</th>
+                            <th>首页推荐</th>
                             <th>审核</th>
                             <th>操作</th>
                         </tr>
@@ -53,7 +52,6 @@
                         <tbody id="list-content">
                         {volist name="data" id="v"}
                         <tr class="long-td">
-                            <td>{$v.title}</td>
                             <td>{$v.p_name}--{$v.name}</td>
                             <td>
                                 {if condition="$v.recommend==1"}

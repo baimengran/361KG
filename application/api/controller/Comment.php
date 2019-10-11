@@ -19,7 +19,7 @@ class Comment extends Controller
      */
     public function index(Request $request)
     {
-        $id = $request->post('issue_id');
+        $id = $request->post('id');
         $user = (new Base())->getUser();
         if (!$id) {
             return json(['code' > 0, 'msg' => '请选择正确内容查看评论']);
@@ -28,24 +28,13 @@ class Comment extends Controller
             $comment = Db::name('comment')->alias('c')->join('user u', 'c.user_id=u.id')
                 ->where('status', 'neq', 2)->where('delete_time', 0)
                 ->where('issue_id', $id)
-                ->field('c.id,c.content,from_unixtime(c.create_time, \'%y-%m-%d %H:%i\') as create_time,
-        u.id as user_id,u.nickname,u.avatar')->order('c.create_time asc')->paginate(20);
-
-            $comment = $comment->each(function ($v, $k) use ($user) {
-                if ($user) {
-                    if ($user['id'] == $v['user_id']) {
-                        $v['delete'] = 1;
-                    } else {
-                        $v['delete'] = 0;
-                    }
-                } else {
-                    $v['delete'] = 0;
-                }
-                return $v;
-            });
+                ->field('c.id,c.content,from_unixtime(c.create_time, \'%m-%d %H:%i\') as create_time,
+        u.id as user_id,u.nickname,u.avatar,u.person_status,u.company_status')->order('c.create_time asc')->paginate(20);
 
             return json(['code' => 1, 'msg' => '查询成功', 'data' => $comment]);
         } catch (\Exception $e) {
+            $data=['code'=>$e->getCode(),'line'=>$e->getLine(),'file'=>$e->getFile(),'message'=>$e->getMessage()];
+            Log::error(json_encode($data,256));
             return json(['code' => 0, 'msg' => '系统错误']);
         }
     }
@@ -58,11 +47,16 @@ class Comment extends Controller
      */
     public function save(Request $request)
     {
+
         $user = (new Base())->getUser();
         if (!$user) {
             return json(['code' => 0, 'msg' => '请登录后重试']);
         }
         $form = $request->post();
+        $validate = new CommentValidate();
+        if (!$validate->check($form)) {
+            return json(['code' => 0, 'msg' => $validate->getError()]);
+        }
         $do = true;
         while ($do) {
             //微信安全接口
@@ -84,12 +78,14 @@ class Comment extends Controller
                 $do = false;
             }
         }
-        $validate = new CommentValidate();
-        if (!$validate->check($form)) {
-            return json(['code' => 0, 'msg' => $validate->getError()]);
-        }
+
         Db::startTrans();
         try {
+            $issue = Db::name('issue')->where('id', $form['issue_id'])->where('delete_time',0)
+                ->where('check_status','neq',2)->find();
+            if (!$issue) {
+                return json(['code' => 0, 'msg' => '您评论的内容不存在']);
+            }
             $comment = Db::name('comment')->insertGetId([
                 'user_id' => $user['id'],
                 'issue_id' => $form['issue_id'],
@@ -106,6 +102,36 @@ class Comment extends Controller
                     'create_time' => time(),
                     'update_time' => time(),
                 ]);
+                //发送消息
+                $notice_data = [
+                    'reply_id' => $comment,
+                    'reply_content' => $form['content'],
+                    'user_id' => $user['id'],
+                    'user_name' => $user['nickname'],
+                    'user_avatar' => $user['avatar'],
+                    'issue_link' => 'api/notification/show',
+                    'issue_id' => $issue['id'],
+                    'issue_title' => $issue['title'],
+                    'issue_content' => $issue['content'],
+                    'issue_praise_num' => $issue['praise_num'],
+                    'issue_browse_num' => $issue['browse_num'],
+                    'issue_review_num' => $issue['review_num'],
+                    'issue_collect_num' => $issue['collect_num'],
+                ];
+
+                //创建消息
+                $notifications = Db::name('notifications')->insertGetId([
+                    'type' => \think\facade\Request::module() . '\\' . \think\facade\Request::controller() . '\\' . \think\facade\Request::action(),
+                    'notifiable_id' => $issue['user_id'],
+                    'notifiable_type' => 'User',
+                    'data' => json_encode($notice_data, JSON_UNESCAPED_UNICODE),
+                    'read_at' => '',
+                    'create_time' => time(),
+                    'update_time' => time(),
+                ]);
+
+                //消息创建成功后，添加用户消息数量
+                $user = Db::name('user')->where('id', $issue['user_id'])->setInc('notification_count', 1);
                 Db::commit();
                 return json(['code' => 1, 'msg' => '评论成功']);
             }
@@ -113,6 +139,8 @@ class Comment extends Controller
             return json(['code' => 0, 'msg' => '评论失败']);
         } catch (\Exception $e) {
             Db::rollback();
+            $data=['code'=>$e->getCode(),'line'=>$e->getLine(),'file'=>$e->getFile(),'message'=>$e->getMessage()];
+            Log::error(json_encode($data,256));
             return json(['code' => 0, 'msg' => '系统错误']);
         }
 
@@ -174,6 +202,8 @@ class Comment extends Controller
             return json(['code' => 1, 'msg' => '删除成功']);
         } catch (\Exception $e) {
             Db::rollback();
+            $data=['code'=>$e->getCode(),'line'=>$e->getLine(),'file'=>$e->getFile(),'message'=>$e->getMessage()];
+            Log::error(json_encode($data,256));
             return json(['code' => 0, 'msg' => '系统错误']);
         }
     }

@@ -1,4 +1,4 @@
-<?php /*a:3:{s:76:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\feedback\index.html";i:1569564983;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1569059483;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:76:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\feedback\index.html";i:1570763494;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -11,7 +11,7 @@
 <title>后台管理系统</title>
 <meta name="keywords" content="">
 <meta name="description" content="">
-<link rel="shortcut icon" href="<?php echo url('/public/favicon.ico','',''); ?>">
+<link rel="shortcut icon" href="<?php echo url('/favicon.ico','',''); ?>">
 <link href="/static/admin/css/bootstrap.min.css" rel="stylesheet">
 <link href="/static/admin/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
 <link href="/static/admin/css/animate.min.css" rel="stylesheet">
@@ -76,9 +76,8 @@
                         <thead>
                         <tr class="text-center">
                             <th>用户昵称</th>
-                            <th>内容</th>
-                            <th>图片</th>
                             <th>提交日期</th>
+                            <th>操作</th>
                         </tr>
                         </thead>
                         <script id="list-template" type="text/html">
@@ -87,13 +86,11 @@
                         <?php if(is_array($data) || $data instanceof \think\Collection || $data instanceof \think\Paginator): $i = 0; $__LIST__ = $data;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$v): $mod = ($i % 2 );++$i;?>
                         <tr class="long-td">
                             <td><?php echo htmlentities($v['nickname']); ?></td>
-                            <td><?php echo htmlentities($v['content']); ?></td>
-                            <td>
-                                <!--<a href="" class="pull-left">-->
-                                <img alt="image" width="100px"  src="<?php echo htmlentities($v['pic']); ?>">
-                                <!--</a>-->
-                            </td>
                             <td><?php echo htmlentities(date('Y-m-d H:i:s',!is_numeric($v['create_time'])? strtotime($v['create_time']) : $v['create_time'])); ?></td>
+                            <td>
+                                <a href="javascript:;" onclick="show(<?php echo htmlentities($v['id']); ?>)" class="btn btn-primary btn-xs btn-outline">
+                                    <i class="fa fa-paste"></i> 详情</a>&nbsp;
+                            </td>
                         </tr>
                         <?php endforeach; endif; else: echo "" ;endif; ?>
                         </tbody>
@@ -140,38 +137,9 @@
 
 <script type="text/javascript" src="/static/admin/js/demo/form-advanced-demo.min.js"></script>
 <script type="text/javascript">
-
-    function status(url, id, w, h) {
-        location.href=url;
+    function show(id) {
+        location.href='/admin/feedback/show?id='+id;
     }
-
-    //筛选
-    $('#category').change(function(){
-        id = $('select option:selected').val();
-
-        location.href="/admin/attr/index?id="+id;
-    });
-
-    //更新排序
-    $(function () {
-        $('#add_rule').ajaxForm({
-            success: complete,
-            dataType: 'json'
-        });
-
-        function complete(data) {
-            if (data.code === 1) {
-                layer.msg(data.msg, {icon: 1, time: 1500, shade: 0.1}, function (index) {
-                    window.location.href = "<?php echo url('attr/index'); ?>";
-                });
-            } else {
-                layer.msg(data.msg, {icon: 2, time: 1500, shade: 0.1}, function (index) {
-                    layer.close(index);
-                    window.location.href ="<?php echo url('attr/index'); ?>";
-                });
-            }
-        }
-    });
 
 </script>
 

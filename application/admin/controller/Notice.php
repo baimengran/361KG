@@ -6,6 +6,8 @@ use think\Controller;
 use think\Db;
 use think\Request;
 use app\admin\validate\Notice as NoticeValidate;
+use think\Validate;
+use app\admin\model\Notice as NoticeModel;
 
 class Notice extends Base
 {
@@ -19,7 +21,7 @@ class Notice extends Base
         $key = $this->request->post('key');
         try {
             $comment = Db::name('notice')->where('delete_time', 0)
-                ->field('id,content,status,delete_time,create_time');
+                ->field('id,content,status,delete_time,create_time,pic,sort');
             if ($key) {
                 $comment = $comment->where('content', 'like', '%' . $key . '%');
             }
@@ -30,6 +32,38 @@ class Notice extends Base
             return $this->fetch('notice/index');
         } catch (\Exception $e) {
             return $this->fetch('error/500');
+        }
+    }
+
+    public function sort(Request $request)
+    {
+        $form = $request->post();
+
+        $data = [];
+        foreach ($form as $k => $v) {
+            $data[] = ['id' => trim($k), 'sort' => trim($v),];
+        }
+
+        $rule = [
+            'id' => 'require',
+            'sort' => 'require|number',
+        ];
+        $message = [
+            'id' => '排序错误',
+            'sort.require' => '排序必须填写',
+            'sort.number' => '排序必须填写数字'
+        ];
+        $validate = new Validate($rule, $message);
+        foreach ($data as $v) {
+            if (!$validate->check($v)) {
+                return json(['code' => 0, 'msg' => $validate->getError()]);
+            }
+        }
+        try {
+            $cate = (new NoticeModel())->saveAll($data);
+            return json(['code' => 1, 'msg' => '操作成功']);
+        } catch (\Exception $e) {
+            return json(['code' => 0, 'msg' => '系统错误']);
         }
     }
 
@@ -57,7 +91,8 @@ class Notice extends Base
             return json(['code' => 0, 'msg' => $validate->getError()]);
         }
         $data = [
-            'content' => $form['content'],
+//            'content' => $form['content'],
+            'pic' => $form['pic'],
             'status' => 0,
             'create_time' => time(),
             'update_time' => time()
@@ -106,7 +141,8 @@ class Notice extends Base
         }
         $data = [
             'id' => $form['id'],
-            'content' => $form['content'],
+//            'content' => $form['content'],
+            'pic' => $form['pic'],
             'status' => 0,
             'update_time' => time()
         ];
@@ -145,12 +181,12 @@ class Notice extends Base
         $id = $request->param('id');
         try {
             $notice = Db::name('notice')->where('id', $id)->find();
-            $notice_num = Db::name('notice')->where('status',1)->where('delete_time',0)->count('id');
+            $notice_num = Db::name('notice')->where('status', 1)->where('delete_time', 0)->count('id');
             if ($notice) {
                 if ($notice['status'] == 0) {
-                    if($notice_num){
-                        return json(['code'=>2,'msg'=>'当前已有一条公告显示中，请关闭已显示公告后再开启']);
-                    }
+//                    if ($notice_num) {
+//                        return json(['code' => 2, 'msg' => '当前已有一条公告显示中，请关闭已显示公告后再开启']);
+//                    }
                     $notice = Db::name('notice')->where('id', $id)->update(['status' => 1]);
                     return json(['code' => 1, 'msg' => '显示']);
                 } else {

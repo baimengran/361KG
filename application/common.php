@@ -10,12 +10,20 @@
 // +----------------------------------------------------------------------
 
 
-function getSite(){
+function getSite()
+{
     $web_site_path = CONFIG_PATH . 'web_site.json';
-    $data = json_decode(file_get_contents($web_site_path),true);
+    $data = json_decode(file_get_contents($web_site_path), true);
     return $data;
 }
 
+function subtext($text, $length)
+
+{
+    if (mb_strlen($text, 'utf8') > $length)
+        return mb_substr($text, 0, $length, 'utf8') . '…';
+    return $text;
+}
 
 // 应用公共文件
 /**
@@ -28,21 +36,21 @@ function prepareMenu($param)
     $parent = []; //父类
     $child = [];  //子类
 
-    foreach($param as $key=>$vo){
+    foreach ($param as $key => $vo) {
 
-        if($vo['pid'] == 0){
+        if ($vo['pid'] == 0) {
             $vo['href'] = '#';
             $parent[] = $vo;
-        }else{
+        } else {
             $vo['href'] = url($vo['name']); //跳转地址
             $child[] = $vo;
         }
     }
 
-    foreach($parent as $key=>$vo){
-        foreach($child as $k=>$v){
+    foreach ($parent as $key => $vo) {
+        foreach ($child as $k => $v) {
 
-            if($v['pid'] == $vo['id']){
+            if ($v['pid'] == $vo['id']) {
                 $parent[$key]['child'][] = $v;
             }
         }

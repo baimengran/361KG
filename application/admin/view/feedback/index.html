@@ -41,9 +41,8 @@
                         <thead>
                         <tr class="text-center">
                             <th>用户昵称</th>
-                            <th>内容</th>
-                            <th>图片</th>
                             <th>提交日期</th>
+                            <th>操作</th>
                         </tr>
                         </thead>
                         <script id="list-template" type="text/html">
@@ -52,13 +51,11 @@
                         {volist name="data" id="v"}
                         <tr class="long-td">
                             <td>{$v.nickname}</td>
-                            <td>{$v.content}</td>
-                            <td>
-                                <!--<a href="" class="pull-left">-->
-                                <img alt="image" width="100px"  src="{$v.pic}">
-                                <!--</a>-->
-                            </td>
                             <td>{$v.create_time|date='Y-m-d H:i:s'}</td>
+                            <td>
+                                <a href="javascript:;" onclick="show({$v.id})" class="btn btn-primary btn-xs btn-outline">
+                                    <i class="fa fa-paste"></i> 详情</a>&nbsp;
+                            </td>
                         </tr>
                         {/volist}
                         </tbody>
@@ -78,38 +75,9 @@
 {include file="layout/footer" /}
 <script type="text/javascript" src="__JS__/demo/form-advanced-demo.min.js"></script>
 <script type="text/javascript">
-
-    function status(url, id, w, h) {
-        location.href=url;
+    function show(id) {
+        location.href='/admin/feedback/show?id='+id;
     }
-
-    //筛选
-    $('#category').change(function(){
-        id = $('select option:selected').val();
-
-        location.href="/admin/attr/index?id="+id;
-    });
-
-    //更新排序
-    $(function () {
-        $('#add_rule').ajaxForm({
-            success: complete,
-            dataType: 'json'
-        });
-
-        function complete(data) {
-            if (data.code === 1) {
-                layer.msg(data.msg, {icon: 1, time: 1500, shade: 0.1}, function (index) {
-                    window.location.href = "{:url('attr/index')}";
-                });
-            } else {
-                layer.msg(data.msg, {icon: 2, time: 1500, shade: 0.1}, function (index) {
-                    layer.close(index);
-                    window.location.href ="{:url('attr/index')}";
-                });
-            }
-        }
-    });
 
 </script>
 
