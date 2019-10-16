@@ -24,11 +24,22 @@
                         <div class="col-sm-3">
                             <div class="input-group">
                                 <input type="text" id="key" class="form-control" name="key" value="{$val}"
-                                       placeholder="输入需查询的标题名称"/>
+                                       placeholder="输入需查询的内容"/>
                                 <span class="input-group-btn">
                                     <button type="submit" class="btn btn-primary"><i
                                             class="fa fa-search"></i> 搜索</button>
                                 </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <select data-placeholder="筛选" id="category" class="chosen-select" style="width:350px;" tabindex="2">
+                                    <option value="">全部</option>
+                                    <option value="0" hassubinfo="true"></option>
+                                    {foreach $category as $v}
+                                    <option {$id?($id==$v.id?'selected':''):''} value="{$v.id}">{$v.p_title}--{$v.title}</option>
+                                    {/foreach}
+                                </select>
                             </div>
                         </div>
                     </form>
@@ -104,9 +115,15 @@
 
 <!-- 加载动画 -->
 
-
 {include file="layout/footer" /}
+<script type="text/javascript" src="__JS__/demo/form-advanced-demo.min.js"></script>
 <script>
+
+    //筛选
+    $('#category').change(function(){
+        id = $('select option:selected').val();
+        location.href="/admin/issue/index?id="+id;
+    });
 
     //编辑文章
     function edit(id) {

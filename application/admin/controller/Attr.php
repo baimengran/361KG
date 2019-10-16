@@ -18,6 +18,7 @@ class Attr extends Controller
      */
     public function index()
     {
+
         $val = $this->request->post('key');
         $id = $this->request->get('id');
 
@@ -32,13 +33,14 @@ class Attr extends Controller
                 ->where('ca.delete_time', 0)->where('ca.pid', 0)
                 ->where('c.delete_time', 0)->where('a.delete_time', 0);
             if ($val) {
-                $attr = $attr->where('title', 'like', '%' . $val . '%');
+                $attr = $attr->where('name', 'like', '%' . $val . '%');
             }
             if ($id) {
                 $attr = $attr->where('cate_id', $id);
             }
+            $param = \think\facade\Request::param();
             $attr = $attr->field('a.id,a.cate_id,a.name,a.sort,a.delete_time,a.status,c.id as category_id,c.title as cate,ca.title as p_cate,c.delete_time')
-                ->order('sort asc,status desc')->paginate(20);
+                ->order('sort asc,status desc')->paginate(20,false,['query'=>$param]);
 
             $this->assign('id', $id);
             $this->assign('val', $val);
@@ -123,7 +125,7 @@ class Attr extends Controller
             $data[] = [
                 'cate_id' => $form['cate_id'],
                 'sort' => $form['sort'],
-                'status' => $form['status'],
+                'status' => 1,
                 'create_time' => time(),
                 'update_time' => time(),
                 'name' => $v,
@@ -206,6 +208,27 @@ class Attr extends Controller
             if ($attr_value) {
                 return json(['code' => 0, 'msg' => '当前属性下存在发布内容，不能删除']);
             }
+
+            $cate = Db::name('attr')->where('cate_id', 'in', function ($query) use ($id) {
+                $query->name('attr')->where('id', $id)->field('cate_id');
+            })->where('delete_time',0)->field('id,cate_id,status,delete_time')->select();
+            $num =0;
+            foreach($cate as $v){
+                if($v['status']==1){
+                    $num++;
+                }
+            }
+            if($num==1){
+                foreach($cate as $v){
+                    if($id==$v['id']&&$v['status']==1){
+                        return json(['code'=>2,'msg'=>'当前只有被删除属性处于开启状态，请勿删除']);
+                    }
+                }
+            }
+            if (count($cate) == 1) {
+                return json(['code' => 2, 'msg' => '分类下必须至少拥有一个属性']);
+            }
+
             $attr = Db::name('attr')->where('id', $id)->update(['delete_time' => time()]);
             if ($attr) {
                 return json(['code' => 1, 'msg' => '操作成功']);
@@ -225,9 +248,17 @@ class Attr extends Controller
                 $cate = Db::name('attr')->where('id', $id)->update(['status' => 1]);
                 return json(['code' => 1, 'msg' => '开启']);
             } else {
+                $cate = Db::name('attr')->where('cate_id', 'in', function ($query) use ($id) {
+                    $query->name('attr')->where('id', $id)->field('cate_id');
+                })->where('status', 1)->where('delete_time',0)->count('id');
+                if ($cate == 1) {
+                    return json(['code' => 2, 'msg' => '分类下必须至少拥有一个属性']);
+                }
+
                 $cate = Db::name('attr')->where('id', $id)->update(['status' => 0]);
                 return json(['code' => 0, 'msg' => '关闭']);
             }
+            die;
         } catch (\Exception $e) {
             return json(['code' => 0, 'msg' => '系统错误']);
         }

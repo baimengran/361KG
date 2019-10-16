@@ -102,9 +102,8 @@ class Menu extends Base
     {
         if (request()->isAjax()){
             $param = input('post.');
-            $auth_rule = Db::name('auth_rule');
             foreach ($param as $id => $sort){
-                $auth_rule->where(array('id' => $id ))->setField('sort' , $sort);
+                Db::name('auth_rule')->where('id' ,$id)->update(['sort'=>$sort]);
             }
             return json(['code' => 1, 'msg' => '排序更新成功']);
         }

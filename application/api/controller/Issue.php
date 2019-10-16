@@ -10,8 +10,7 @@ use app\api\validate\Issue as IssueValidate;
 
 class Issue extends Controller
 {
-    //TODO:内容过期   发布时电话验证 查询是判断过期时间 发布时判断是否验证手机号
-    //TODO:区域修改三级联动
+
     /**
      * 显示资源列表
      *
@@ -19,6 +18,7 @@ class Issue extends Controller
      */
     public function index(Request $request)
     {
+        $pagesize = $request->post('pagesize');
         //栏目
         $column = $request->post('column');
         //分类
@@ -26,7 +26,9 @@ class Issue extends Controller
         //属性
         $attr_id = $request->post('attr_id');
         //区域
+        $province = $request->post('province');
         $city = $request->post('city');
+        $district = $request->post('district');
         //搜索
         $search = $request->post('search');
 
@@ -35,16 +37,19 @@ class Issue extends Controller
         $field = 'recommend';
         if ($column == -1) {
             //推荐
+            $condition = '1';
+            $operator = 'eq';
+            $field = 'recommend';
         } else if ($column == -2) {
             $user = (new Base())->getUser();
             if (!$user) {
-                return json(['code' => 0, 'msg' => '请登录后重试']);
+                return json(['code' => -1, 'msg' => '请登录后重试']);
             }
             //关注
             $user_issue = Db::name('user_issue')->where('delete_time', 0)->where('user_id', $user['id'])
                 ->where('module_type', 'attention')->column('module_id');
             if (count($user_issue) == 0) {
-                return json(['code' => 0, 'msg' => '您当前还未关注认为何人']);
+                return json(['code' => 1, 'msg' => '','data'=>['data'=>[]]]);
             }
             $condition = $user_issue;
             $operator = 'in';
@@ -64,6 +69,11 @@ class Issue extends Controller
         }
 
         try {
+            //有效期过期处理
+            $issue_valid = Db::name('issue')->where('valid_status', 1)
+                ->where('valid_time', 'neq', 0)
+                ->where('DATEDIFF(CURDATE(),FROM_UNIXTIME(create_time,\'%Y-%m-%d\'))>7')->update(['valid_status' => 0]);
+
             //属性筛选
             if ($attr_id) {
                 $attr_ids = explode(',', $attr_id);
@@ -76,20 +86,50 @@ class Issue extends Controller
 
             $issue = Db::name('issue')->alias('i')->join('user u', 'i.user_id=u.id')
                 ->where('i.delete_time', 0)->where('i.check_status', 'neq', 2)
-                ->field('i.id,i.content,i.pic,i.user_id,i.praise_num,u.nickname,u.avatar,u.city,u.person_status,u.company_status,i.review_num,i.permission,u.phone');
-
-            if($search){
-                $issue = $issue->where('content','like','%'.$search.'%');
-            }else{
-                $issue = $issue->where($field, $operator, $condition);
-                if ($city) {
-                    $issue = $issue->where('i.city', $city);
+                ->where('valid_status', 1)
+                ->field('i.id,i.content,i.pic,i.user_id,i.praise_num,u.nickname,u.avatar,
+                u.province,u.city,u.district,u.person_status,u.company_status,i.review_num,i.permission,u.phone');
+            $user = (new Base())->getUser();
+//            if (!$user) {
+//                $condition = '1';
+//                $operator = 'eq';
+//                $field = 'recommend';
+//                $column = -1;
+//            }
+            if ($search) {
+                $issue = $issue->where('content', 'like', '%' . $search . '%');
+            } else {
+                if ($column != -3) {
+                    $issue = $issue->where($field, $operator, $condition);
+                } else {
+                    $issue = $issue->where('i.province', $user['province'])->where('i.city', $user['city'])
+                        ->where('i.district', $user['district']);
+                }
+                if ($city && $province && $district) {
+                    $issue = $issue->where('i.city', $city)->where('i.province', $province)->where('i.district', $district);
                 }
             }
 
-            $issue = $issue->order('i.create_time desc')->paginate(20);
-            $user = (new Base())->getUser();
-            $issue = $issue->each(function ($v, $k) use ($user) {
+            $issue = $issue->order('i.create_time desc')->paginate($pagesize ?: 20);
+
+
+            //查询公告
+            $notice = Db::name('notice')->where('delete_time', 0)->where('status', 1)
+                ->field('id,pic')->select();
+//            dump($notice);die;
+            $lim = 1;
+            $issue = $issue->each(function ($v, $k) use ($user, $notice) {
+                static $lim = 0;
+                //添加广告
+                if ($k / 2 == 1) {
+                    if (array_key_exists($lim, $notice)) {
+                        $v['ad'] = $notice[$lim];
+                        $lim = $lim + 1;
+                    }
+                }
+                $v['city'] = $v['city'] . $v['district'];
+                unset($v['province']);
+                unset($v['district']);
                 $phone = $v['phone'];
                 //联系权限
                 if ($v['permission'] != 0) {
@@ -97,7 +137,15 @@ class Issue extends Controller
                 }
                 $v['attention'] = 0;
                 $v['user_attention'] = 0;
+                //判断当前用户是否有权查看拨打电话
+
+                if ($v['permission'] == -1) {
+                    $v['phone'] = '';
+                } else {
+                    $v['phone'] = $phone;
+                }
                 if ($user) {
+
                     //是否点攒
                     $praise = Db::name('user_issue')->where('delete_time', 0)->where('user_id', $user['id'])
                         ->where('module_id', $v['id'])->where('module_type', 'praise')->count('id');
@@ -111,20 +159,6 @@ class Issue extends Controller
                         $v['user_attention'] = 1;
                         $v['phone'] = $phone;
                     } else {
-                        //判断当前用户是否有权查看拨打电话
-                        if ($v['permission'] == -1) {
-                            $v['phone'] = null;
-                        } else if ($v['permission'] == 1) {
-                            if ($user['person_status'] != 1) {
-                                $v['phone'] = null;
-                            }
-                        } else if ($v['permission'] == 2) {
-                            if ($user['company_status'] != 1) {
-                                $v['phone'] = null;
-                            }
-                        } else {
-                            $v['phone'] = $phone;
-                        }
                         $v['user_attention'] = 0;
                     }
                     //查询关注信息
@@ -143,19 +177,15 @@ class Issue extends Controller
                     if ($cu_attention + $to_attention == 2) {
                         $v['attention'] = 2;
                     }
+                } else {
+                    $v['user_praise'] = 0;
+                    //是否收藏
+                    $v['user_collect'] = 0;
                 }
                 return $v;
             });
-            $page = $request->post('page');
-            if ($page == '') {
-                $page = 1;
-            }
 
-            //查询公告
-            $notice = Db::name('notice')->where('delete_time', 0)->where('status', 1)
-                ->field('id,pic')->limit($page-1, 1)->select();
-
-            return json(['code' => 1, 'msg' => '查询成功', 'data' => ['issue' => $issue, 'notice' => $notice]]);
+            return json(['code' => 1, 'msg' => '查询成功', 'data' => $issue]);
         } catch (\Exception $e) {
             $data = ['code' => $e->getCode(), 'line' => $e->getLine(), 'file' => $e->getFile(), 'message' => $e->getMessage()];
             Log::error(json_encode($data, 256));
@@ -167,7 +197,7 @@ class Issue extends Controller
     {
         $user = (new Base())->getUser();
         if ($user['phone_status'] == 0) {
-            return json(['code' => 0, 'msg' => '请先认证手机后再发布']);
+            return json(['code' => 0, 'msg' => '请先绑定手机后再发布']);
         }
         if (!$user) {
             return json(['code' => 0, 'msg' => '请登录后重试']);
@@ -177,6 +207,15 @@ class Issue extends Controller
         if (!$validate->check($form)) {
             return json(['code' => 0, 'msg' => $validate->getError()]);
         }
+        if (array_key_exists('pic', $form) && $form['pic'] != null) {
+            $pic = explode(',', $form['pic']);
+            if (count($pic) > 9) {
+                return json(['code' => 0, 'msg' => '图片最多只能上传9张']);
+            }
+        } else {
+            $form['pic'] = '';
+        }
+
         Db::startTrans();
         try {
             $attr_array = explode(',', $form['attr_id']);
@@ -199,9 +238,9 @@ class Issue extends Controller
                 'cate_id' => $attr_cate_id,
                 'category_id' => $category_id,
                 'content' => $form['content'],
-                'province'=>$form['province'],
+                'province' => $form['province'],
                 'city' => $form['city'],
-                'district'=>$form['district'],
+                'district' => $form['district'],
                 'permission' => $form['permission'],
                 'valid_time' => $form['valid_time'],
                 'create_time' => time(),
@@ -247,9 +286,17 @@ class Issue extends Controller
             if ($issue_id) {
                 $issue = Db::name('issue')->alias('i')->join('user u', 'u.id=i.user_id')
                     ->where('i.id', $issue_id)->where('i.delete_time', 0)->where('i.check_status', 'neq', 2)
-                    ->field('i.id,i.content,i.pic,i.user_id,i.praise_num,u.nickname,u.avatar,u.city,u.person_status,u.company_status,i.review_num,i.permission,u.phone')
+                    ->field('i.id,i.content,i.pic,i.user_id,i.praise_num,u.nickname,u.avatar,u.province,u.city,u.district,u.person_status,u.company_status,i.review_num,i.permission,u.phone')
                     ->find();
 //                dump($issue_id);die;
+//                if ($issue['province'] == $issue['city']) {
+//                    unset($issue['province']);
+//                    unset($issue['district']);
+//                } else {
+                    $issue['city'] = $issue['city'].$issue['district'];
+                    unset($issue['province']);
+                    unset($issue['district']);
+//                }
                 $cu_user = (new Base())->getUser();
                 if ($issue) {
                     $issue['attention'] = 0;
@@ -275,14 +322,14 @@ class Issue extends Controller
                         } else {
                             //判断当前用户是否有权查看拨打电话
                             if ($issue['permission'] == -1) {
-                                $issue['phone'] = null;
+                                $issue['phone'] = '';
                             } else if ($issue['permission'] == 1) {
                                 if ($cu_user['person_status'] != 1) {
-                                    $issue['phone'] = null;
+                                    $issue['phone'] = '';
                                 }
                             } else if ($issue['permission'] == 2) {
                                 if ($cu_user['company_status'] != 1) {
-                                    $issue['phone'] = null;
+                                    $issue['phone'] = '';
                                 }
                             } else {
                                 $issue['phone'] = $phone;
@@ -317,6 +364,10 @@ class Issue extends Controller
                                 'update_time' => time(),
                             ]);
                         }
+                    } else {
+                        $issue['user_praise'] = 0;
+                        //是否收藏
+                        $issue['user_collect'] = 0;
                     }
                 } else {
                     return json(['code' => 0, 'msg' => '当前内容不存在']);
@@ -330,6 +381,36 @@ class Issue extends Controller
             }
         } catch (\Exception $e) {
             Db::rollback();
+            $data = ['code' => $e->getCode(), 'line' => $e->getLine(), 'file' => $e->getFile(), 'message' => $e->getMessage()];
+            Log::error(json_encode($data, 256));
+            return json(['code' => 0, 'msg' => '系统错误']);
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        $user = (new Base())->getUser();
+        if (!$user) {
+            return json(['code' => '请登录后重试']);
+        }
+        $issue_id = $request->post('issue_id');
+        try {
+            $issue = Db::name('issue')->where('id', $issue_id)->where('delete_time', 0)
+                ->where('check_status', 'neq', 2)->find();
+            if (!$issue) {
+                return json(['code' => 0, 'msg' => '当前删除内容未找到']);
+            } else {
+                if ($issue['user_id'] != $user['id']) {
+                    return json(['code' => 0, 'msg' => '当前内容不是您发布的，禁止操作']);
+                }
+            }
+            //删除
+            $issue = $issue = Db::name('issue')->where('id', $issue_id)->where('delete_time', 0)
+                ->where('check_status', 'neq', 2)->where('user_id', $user['id'])
+                ->update(['delete_time' => time()]);
+
+            return json(['code' => 1, 'msg' => '操作成功']);
+        } catch (\Exception $e) {
             $data = ['code' => $e->getCode(), 'line' => $e->getLine(), 'file' => $e->getFile(), 'message' => $e->getMessage()];
             Log::error(json_encode($data, 256));
             return json(['code' => 0, 'msg' => '系统错误']);

@@ -1,4 +1,4 @@
-<?php /*a:3:{s:72:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\issue\show.html";i:1570764325;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:72:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\issue\show.html";i:1571208565;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1570864758;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -96,7 +96,7 @@
                                 <div class="hr-line-dashed"></div>
                                 <div class="form-group">
                                     <div class="col-sm-4 col-sm-offset-5">
-                                        <a style="width:100px" class="btn btn-danger" href="javascript:history.go(-1);">
+                                        <a style="width:100px" class="btn btn-danger" href="<?php echo url('/admin/issue/index'); ?>">
                                             返回</a>
                                     </div>
                                 </div>

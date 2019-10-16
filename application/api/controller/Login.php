@@ -65,8 +65,8 @@ class Login
         //初始化
         $cu = curl_init();
         //设置选项
-            $url = 'https://api.weixin.qq.com/sns/jscode2session?appid='
-                .$this->app_id.'&secret='.$this->app_secret.'&js_code='.$user_info['code'].'&grant_type=authorization_code';
+        $url = 'https://api.weixin.qq.com/sns/jscode2session?appid='
+            . $this->app_id . '&secret=' . $this->app_secret . '&js_code=' . $user_info['code'] . '&grant_type=authorization_code';
         curl_setopt($cu, CURLOPT_URL, $url);
         curl_setopt($cu, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($cu, CURLOPT_SSL_VERIFYPEER, 0);
@@ -106,21 +106,60 @@ class Login
                 unset($user_info['session_key']);
                 $user_info['create_time'] = time();
                 $user_info['update_time'] = time();
+                //判断地理信息是否为空
+                if  (($user_info['province'] == '' && $user_info['city'] == '' && $user_info['district']=='')||
+                    ($user_info['province'] == 'undefined' && $user_info['city'] == 'undefined' && $user_info['district']=='undefined')) {
+                    unset($user_info['district']);
+                    unset($user_info['province']);
+                    unset($user_info['city']);
+                }
+//                $user_info['province'] = $user_info['province'] ||$user_info['province'] == 'undefined'  ?? '';
+//                $user_info['district'] = $user_info['district'] ||$user_info['district'] == 'undefined'  ?? '';
+//                $user_info['city'] = $user_info['city'] ||$user_info['city'] == 'undefined'  ?? '';
+
+
                 $user['id'] = Db::name('user')->insertGetId($user_info);
-            }else{
-                $user = Db::name('user')->where('openid',$output['openid'])
-                    ->update(['avatar'=>$user_info['avatar'],'nickname'=>$user_info['nickname']]);
+            } else {
+                $data = [
+                    'avatar'=>$user_info['avatar'],
+                    'nickname'=>$user_info['nickname'],
+                    'district'=>$user_info['district'],
+                    'province'=>$user_info['province'],
+                    'city'=>$user_info['city']
+                ];
+
+
+//                $user['province'] ? $user['province'] : unset($user_info['province']);
+//                $user_info['province'] = $user_info['province'] ||$user_info['province'] == 'undefined'  ?? '';
+//                $user_info['district'] = $user_info['district'] ||$user_info['district'] == 'undefined'  ?? '';
+//                $user_info['city'] = $user_info['city'] ||$user_info['city'] == 'undefined'  ?? '';
+                if  (($user_info['province'] == '' && $user_info['city'] == '' && $user_info['district']=='')||
+                    ($user_info['province'] == 'undefined' && $user_info['city'] == 'undefined' && $user_info['district']=='undefined')) {
+                    unset($data['district']);
+                    unset($data['province']);
+                    unset($data['city']);
+                }
+//                if ($user_info['province'] == 'undefined' && $user_info['city'] == 'undefined' && $user_info['district']=='undefined') {
+//                    unset($data['district']);
+//                    unset($data['province']);
+//                    unset($data['city']);
+//                }
+                $user = Db::name('user')->where('openid', $output['openid'])
+                    ->update($data);
             }
             //获取token
-            $token = Db::name('user')->where('openid', $output['openid'])->value('token');
+            $token = Db::name('user')->where('openid', $output['openid'])
+                ->field('id,token,province,city,district,phone,phone_status,person_status,company_status,
+                nickname,fans_num,attention_num,praise_num,avatar,notification_count')
+                ->find();
             if ($token) {
                 return json(['code' => 1, 'msg' => '登录成功', 'data' => $token]);
             } else {
                 return json(['code' => 0, 'msg' => '登录失败']);
             }
         } catch (Exception $e) {
-            $data=['code'=>$e->getCode(),'line'=>$e->getLine(),'file'=>$e->getFile(),'message'=>$e->getMessage()];
-            Log::error(json_encode($data,256));
+            $data = ['code' => $e->getCode(), 'line' => $e->getLine(), 'file' => $e->getFile(), 'message' => $e->getMessage()];
+            Log::error(json_encode($data, 256));
             return json(['code' => 0, 'msg' => '内部错误'], 500);
         }
     }

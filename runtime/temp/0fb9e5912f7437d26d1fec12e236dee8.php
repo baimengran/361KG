@@ -1,4 +1,4 @@
-<?php /*a:3:{s:72:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\attr\index.html";i:1569572787;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:72:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\attr\index.html";i:1569572787;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1570864758;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">

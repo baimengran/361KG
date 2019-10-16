@@ -1,4 +1,4 @@
-<?php /*a:3:{s:73:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\issue\index.html";i:1570670836;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:73:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\issue\index.html";i:1571206812;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1570864758;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -59,11 +59,22 @@
                         <div class="col-sm-3">
                             <div class="input-group">
                                 <input type="text" id="key" class="form-control" name="key" value="<?php echo htmlentities($val); ?>"
-                                       placeholder="输入需查询的标题名称"/>
+                                       placeholder="输入需查询的内容"/>
                                 <span class="input-group-btn">
                                     <button type="submit" class="btn btn-primary"><i
                                             class="fa fa-search"></i> 搜索</button>
                                 </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <select data-placeholder="筛选" id="category" class="chosen-select" style="width:350px;" tabindex="2">
+                                    <option value="">全部</option>
+                                    <option value="0" hassubinfo="true"></option>
+                                    <?php foreach($category as $v): ?>
+                                    <option <?php echo !empty($id) ? ($id==$v['id']?'selected' : ''):''; ?> value="<?php echo htmlentities($v['id']); ?>"><?php echo htmlentities($v['p_title']); ?>--<?php echo htmlentities($v['title']); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                         </div>
                     </form>
@@ -139,7 +150,6 @@
 
 <!-- 加载动画 -->
 
-
 <script src="/static/admin/js/jquery.min.js?v=2.1.4"></script>
 <script src="/static/admin/js/bootstrap.min.js?v=3.3.6"></script>
 <script src="/static/admin/js/plugins/metisMenu/jquery.metisMenu.js"></script>
@@ -168,7 +178,14 @@
 
 
 
+<script type="text/javascript" src="/static/admin/js/demo/form-advanced-demo.min.js"></script>
 <script>
+
+    //筛选
+    $('#category').change(function(){
+        id = $('select option:selected').val();
+        location.href="/admin/issue/index?id="+id;
+    });
 
     //编辑文章
     function edit(id) {

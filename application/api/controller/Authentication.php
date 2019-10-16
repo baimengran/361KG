@@ -16,6 +16,8 @@ class Authentication extends Controller
         if (!$user) {
             return json(['code' => 0, 'msg' => '请登录后重试']);
         }
+        try {
+
         $form = $request->post();
         if (!array_key_exists('type',$form)||$form['type']=='') {
             return json(['code' => 0, 'msg' => '参数错误']);
@@ -34,6 +36,10 @@ class Authentication extends Controller
         }
         $data = [];
         if ($form['type'] == 1) {
+            //查询用户是否认证
+            if($user['person_status']!=-1){
+                return json(['code'=>0,'msg'=>'您以申请认证或认证以通过，请勿重复申请']);
+            }
             $data = [
                 'person_auth_name' => $form['person_auth_name'],
                 'person_auth_pic_front' => $form['person_auth_pic_front'],
@@ -43,6 +49,10 @@ class Authentication extends Controller
                 'person_status'=>0,
             ];
         } else {
+            //查询用户是否认证
+            if($user['company_status']!=-1){
+                return json(['code'=>0,'msg'=>'您以申请认证或认证以通过，请勿重复申请']);
+            }
             $data = [
                 'company_auth_name' => $form['company_auth_name'],
                 'company_auth_pic' => $form['company_auth_pic'],
@@ -50,7 +60,7 @@ class Authentication extends Controller
                 'company_status'=>0
             ];
         }
-        try {
+
             $user = Db::name('user')->where('id',$user['id'])->update($data);
             if ($user) {
                 return json(['code' => 1, 'msg' => '操作成功']);

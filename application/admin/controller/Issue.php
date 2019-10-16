@@ -17,8 +17,17 @@ class Issue extends Base
      */
     public function index()
     {
+
+
         try {
             $key = $this->request->post('key');
+
+            $id = $this->request->get('id');
+
+            $category = $cate = Db::name('category')->alias('c')->join('category ca', 'ca.id=c.pid')
+                ->where('c.pid', 'neq', 0)->where('c.delete_time', 0)
+                ->where('ca.pid', 0)->where('ca.delete_time', 0)
+                ->field('c.id,c.title,ca.title as p_title')->order('c.pid asc')->select();
 
             $cate = Db::name('issue')->alias('is')->join('category c', 'c.id=is.cate_id')
                 ->join('category ca', 'ca.id=c.pid')
@@ -27,13 +36,21 @@ class Issue extends Base
                 is.recommend')
                 ->where('is.delete_time', 0);
             if ($key) {
-                $cate = $cate->where('is.title', 'like', '%' . $key . '%');
+                $cate = $cate->where('is.content', 'like', '%' . $key . '%');
             }
 
-            $cate = $cate->order('is.status asc,is.top desc,is.create_time desc')->paginate(20);
+            if ($id) {
+                $cate = $cate->where('cate_id', $id);
+            }
+            $param = \think\facade\Request::param();
 
+            $cate = $cate->order('is.status asc,is.top desc,is.create_time desc')
+                ->paginate(20, false, ['query' => $param]);
+
+            $this->assign('id', $id);
             $this->assign('val', $key);
             $this->assign('data', $cate);
+            $this->assign('category', $category);
             return $this->fetch('issue/index');
         } catch (\Exception $e) {
             return $this->fetch('error/500');
@@ -56,14 +73,14 @@ class Issue extends Base
                 if ($issue['pic'] != '') {
                     $issue['pic'] = explode(',', $issue['pic']);
                 }
-                if($issue['permission']==-1){
-                    $issue['permission']='不允许查看';
-                }else if($issue['permission']==0){
-                    $issue['permission']='任何人';
-                }else if($issue['permission']==1){
-                    $issue['permission']='个人认证';
-                }else {
-                    $issue['permission']='企业认证';
+                if ($issue['permission'] == -1) {
+                    $issue['permission'] = '不允许查看';
+                } else if ($issue['permission'] == 0) {
+                    $issue['permission'] = '任何人';
+                } else if ($issue['permission'] == 1) {
+                    $issue['permission'] = '个人认证';
+                } else {
+                    $issue['permission'] = '企业认证';
                 }
 
             } else {

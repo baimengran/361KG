@@ -35,7 +35,8 @@ class Cate extends Controller
             if ($id) {
                 $cate = $cate->where('c.pid', $id);
             }
-            $cate = $cate->order('c.sort asc,c.create_time desc')->paginate(20);
+            $param = \think\facade\Request::param();
+            $cate = $cate->order('c.sort asc,c.create_time desc')->paginate(20,false,['query'=>$param]);
 
 //            $cate = (new CategoryTree())->getChildren($cate);
             $this->assign('id', $id);
@@ -124,7 +125,7 @@ class Cate extends Controller
                 'path' => $category['path'] . $category['id'] . '-',
                 'level' => $category['level'] + 1,
                 'sort' => $form['sort'],
-                'status' => $form['status'],
+                'status' => 1,
                 'create_time' => time(),
                 'update_time' => time(),
             ];
@@ -181,7 +182,6 @@ class Cate extends Controller
             $data = [
                 'title' => $form['title'],
                 'sort' => $form['sort'],
-                'status' => $form['status'],
                 'pid' => $category['id'],
                 'path' => $category['path'] . $category['id'] . '-',
                 'level' => $category['level'] + 1,
@@ -211,6 +211,26 @@ class Cate extends Controller
             if ($attr) {
                 return json(['code' => 0, 'msg' => '当前分类下有属性存在，不能删除']);
             }
+            $cate = Db::name('category')->where('pid', 'in', function ($query) use ($id) {
+                $query->name('category')->where('id', $id)->where('delete_time',0)->field('pid');
+            })->where('delete_time',0)->field('id,status,delete_time')->select();
+            $num =0;
+            foreach($cate as $v){
+                if($v['status']==1){
+                    $num++;
+                }
+            }
+            if($num==1){
+                foreach($cate as $v){
+                    if($id==$v['id']&&$v['status']==1){
+                        return json(['code'=>2,'msg'=>'当前只有被删除分类处于开启状态，请勿删除']);
+                    }
+                }
+            }
+            if (count($cate) == 1) {
+                return json(['code' => 2, 'msg' => '分类下必须至少拥有一个分类']);
+            }
+
             $cate = Db::name('category')->where('id', $id)->update(['delete_time' => time()]);
             if ($cate) {
                 return json(['code' => 1, 'msg' => '操作成功']);
@@ -231,6 +251,13 @@ class Cate extends Controller
                 $cate = Db::name('category')->where('id', $id)->update(['status' => 1]);
                 return json(['code' => 1, 'msg' => '开启']);
             } else {
+                $cate = Db::name('category')->where('pid', 'in', function ($query) use ($id) {
+                        $query->name('category')->where('id', $id)->where('delete_time',0)->field('pid');
+                })->where('status', 1)->where('delete_time',0)->count('id');
+
+                if ($cate == 1) {
+                    return json(['code' => 2, 'msg' => '分类下必须至少拥有一个分类']);
+                }
                 $cate = Db::name('category')->where('id', $id)->update(['status' => 0]);
                 return json(['code' => 0, 'msg' => '关闭']);
             }

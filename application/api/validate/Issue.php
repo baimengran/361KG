@@ -19,7 +19,7 @@ class Issue extends Validate
         'province' => 'require',
         'district' => 'require',
         'city' => 'require',
-        'permission' => 'require|number|in:0,1,2',
+        'permission' => 'require|in:-1,0,1,2',
         'valid_time' => 'require|number',
     ];
 
@@ -37,7 +37,7 @@ class Issue extends Validate
         'city' => '请选择城市',
         'district.require' => '请选择区域',
         'permission.require' => '请设置联系权限',
-        'permission.number' => '联系权限设置错误',
+//        'permission.number' => '联系权限设置错误',
         'permission.in' => '联系权限设置错误',
         'valid_time.require' => '有效时间必须设置',
         'valid_time.number' => '有效时间设置错误',

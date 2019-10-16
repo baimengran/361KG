@@ -1,4 +1,4 @@
-<?php /*a:3:{s:74:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\config\index.html";i:1569567133;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:74:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\config\index.html";i:1571031639;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1570864758;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -93,26 +93,14 @@
                             <div class="tab-content">
                                 <div id="tab-1" class="tab-pane active">
                                     <form action="<?php echo url('save'); ?>" method="post" id="site" class="form-horizontal">
-                                        <div class="hr-line-dashed"></div>                                
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label">网站标题：</label>
-                                            <div class="input-group col-sm-4">                                              
-                                                <input type="text" class="form-control" name="title" value="<?php echo !empty($site['title']) ? (!empty($site['title'])?$site['title'] : ''):''; ?>">
-                                                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 网站标题</span>                                           
-                                            </div>
-                                        </div>                                 
-                                        <div class="hr-line-dashed"></div>
-                                        <div class="form-group">
-                                            <label class="col-sm-2 control-label">网站LOGO：</label>
-                                            <div class="input-group col-sm-4">
-                                                <input type="hidden" id="data_photo" name="logo" value="<?php echo !empty($site) ? (!empty($site['logo'])?$site['logo'] : ''):''; ?>"/>
-                                                <div id="fileList" class="uploader-list"></div>
-                                                <div id="imgPicker" style="float:left">选择图片</div>
-                                                <img id="img_data" height="100px" width="100px"
-                                                     style="float:left;margin-left: 50px;margin-top: -10px;"
-                                                     src="<?php echo !empty($site) ? (!empty($site['logo'])?$site['logo'] : ''):''; ?>" onerror="this.src='/static/admin/img/no_img.jpg'"/>
-                                            </div>
-                                        </div>
+                                        <!--<div class="hr-line-dashed"></div>                                -->
+                                        <!--<div class="form-group">-->
+                                            <!--<label class="col-sm-2 control-label">网站标题：</label>-->
+                                            <!--<div class="input-group col-sm-4">                                              -->
+                                                <!--<input type="text" class="form-control" name="title" value="">-->
+                                                <!--<span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 网站标题</span>                                           -->
+                                            <!--</div>-->
+                                        <!--</div>-->
                                         <div class="hr-line-dashed"></div>
                                         <div class="form-group">
                                             <label class="col-sm-2 control-label">网站名称：</label>

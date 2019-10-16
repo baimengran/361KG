@@ -2,6 +2,7 @@
 
 namespace app\admin\controller;
 
+use app\common\Redis;
 use think\Controller;
 use think\Db;
 use think\Request;

@@ -30,10 +30,10 @@ class ConAttr extends Base
                 $cate = $cate->where('c.id',$id);
             }
             if ($key) {
-                $cate = $cate->where('title', 'like', '%' . $key . '%');
+                $cate = $cate->where('name', 'like', '%' . $key . '%');
             }
-
-            $cate = $cate->order('ca.sort asc,create_time desc')->paginate(20);
+            $param = \think\facade\Request::param();
+            $cate = $cate->order('ca.sort asc,create_time desc')->paginate(2,false,['query'=>$param]);
 
             $category = Db::name('category')->where('delete_time',0)->where('status',1)
                 ->where('pid',0)->select();

@@ -20,8 +20,10 @@ class Notification extends Controller
         if (!$user) {
             return json(['code' => 0, 'msg' => '请登录后重试']);
         }
-        $notice_count = Db::name('user')->where('id', $user['id'])
-            ->where('notification_count', 0)->value('notification_count');
+        $notice_count = Db::name('user')->where('id', $user['id'])->value('notification_count');
+        if(!$notice_count){
+            $notice_count=0;
+        }
         return json(['code' => 1, 'msg' => '查询成功', 'data' => $notice_count]);
     }
 
@@ -34,13 +36,14 @@ class Notification extends Controller
     {
         $user = (new Base())->getUser();
         if (!$user) {
-            return json(['code' => 0, 'msg' => '请登录后重试']);
+            return json(['code' => -1, 'msg' => '请登录后重试']);
         }
 
         try {
             $notice = Db::name('notifications')->where('notifiable_id', $user['id'])
                 ->where('notifiable_type', 'User')
-                ->field('id,notifiable_id as issue_user_id,data,from_unixtime(create_time,\'%m-%d %H:%i\') as create_time,read_at')->paginate(20);
+                ->field('id,notifiable_id as issue_user_id,data,from_unixtime(create_time,\'%m-%d %H:%i\') as create_time,read_at')
+                ->order('read_at desc,create_time desc')->paginate(20);
 
             $notice = $notice->each(function ($v) {
                 $data = json_decode($v['data'], true);

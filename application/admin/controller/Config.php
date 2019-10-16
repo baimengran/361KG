@@ -28,8 +28,7 @@ class Config extends Base
     {
         $form = \think\facade\Request::post();
         $rule = [
-            'title' => 'require|max:10',
-            'logo' => 'require',
+//            'title' => 'require|max:10',
             'name' => 'require|max:50',
             'introduce' => 'require|max:100',
             'contacts'=>"require|max:10",

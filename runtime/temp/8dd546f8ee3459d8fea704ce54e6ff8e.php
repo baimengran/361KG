@@ -1,4 +1,4 @@
-<?php /*a:3:{s:73:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\index\index.html";i:1568709275;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:73:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\index\index.html";i:1568709275;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1570864758;}*/ ?>
 <!DOCTYPE html>
 <html>
 

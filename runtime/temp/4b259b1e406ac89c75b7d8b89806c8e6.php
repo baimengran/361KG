@@ -1,4 +1,4 @@
-<?php /*a:3:{s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\cate\add_edit.html";i:1569463128;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1569059483;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1569388136;}*/ ?>
+<?php /*a:3:{s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\cate\add_edit.html";i:1571210113;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\header.html";i:1570606922;s:75:"D:\phpstudy_pro\WWW\www.361kg.com\application\admin\view\layout\footer.html";i:1570864758;}*/ ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en">
@@ -11,7 +11,7 @@
 <title>后台管理系统</title>
 <meta name="keywords" content="">
 <meta name="description" content="">
-<link rel="shortcut icon" href="<?php echo url('/public/favicon.ico','',''); ?>">
+<link rel="shortcut icon" href="<?php echo url('/favicon.ico','',''); ?>">
 <link href="/static/admin/css/bootstrap.min.css" rel="stylesheet">
 <link href="/static/admin/css/font-awesome.min93e3.css?v=4.4.0" rel="stylesheet">
 <link href="/static/admin/css/animate.min.css" rel="stylesheet">
@@ -67,7 +67,7 @@
                         <label class="col-sm-3 control-label">选择栏目：</label>
                         <div class="input-group col-sm-4">
                         <select class="form-control" name="cate_id" id="ding">
-                        <option value="0">默认顶级</option>
+                        <option value="0">请选择</option>
                         <?php foreach($cate as $v): ?>
                         <option value="<?php echo htmlentities($v['id']); ?>" <?php echo !empty($data) ? ($data['pid']==$v['id']?'selected' : ''):''; ?>><?php echo htmlentities($v['title']); ?></option>
                         <?php endforeach; ?>
@@ -92,24 +92,9 @@
                         </div>
                         <div class="hr-line-dashed"></div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">状态</label>
-                            <div class="input-group col-sm-4" >
-                                <div class="radio radio-info radio-inline">
-                                    <input type="radio" id="inlineRadio6" value="1" name="status"  <?php echo !empty($data) ? ($data['status']==1?'checked' : ''):'checked'; ?>>
-                                    <label for="inlineRadio6"> 开启 </label>
-                                </div>
-                                <div class="radio radio-info radio-inline">
-                                    <input type="radio" id="inlineRadio7" value="0" name="status"  <?php echo !empty($data) ? ($data['status']==0?'checked' : ''):''; ?> >
-                                    <label for="inlineRadio7"> 关闭 </label>
-                                </div>
-
-                        </div>
-                        </div>
-                        <div class="hr-line-dashed"></div>
-                        <div class="form-group">
                             <div class="col-sm-4 col-sm-offset-3">
                                 <button class="btn btn-primary" type="submit"><i class="fa fa-save"></i> 保存</button>&nbsp;&nbsp;&nbsp;
-                                <a class="btn btn-danger" href="javascript:history.go(-1);"><i class="fa fa-close"></i>
+                                <a class="btn btn-danger" href="<?php echo url('admin/cate/index'); ?>"><i class="fa fa-close"></i>
                                     返回</a>
                             </div>
                         </div>
